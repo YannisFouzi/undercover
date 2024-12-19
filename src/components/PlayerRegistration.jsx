@@ -6,24 +6,28 @@ function PlayerRegistration({
   totalPlayers,
   onComplete,
 }) {
-  const [playerName, setPlayerName] = useState("");
   const [showWord, setShowWord] = useState(false);
   const [currentWord, setCurrentWord] = useState("");
   const [currentPlayerNumber, setCurrentPlayerNumber] = useState(currentPlayer);
+  const [selectedName, setSelectedName] = useState("");
+  const [usedNames, setUsedNames] = useState([]);
+
+  const availableNames = ["Damien", "Steven", "Lucca", "Julien"];
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!showWord) {
-      const result = onSubmit(playerName);
+      const result = onSubmit(selectedName);
       setCurrentWord(result.word);
       setShowWord(true);
+      setUsedNames([...usedNames, selectedName]);
     } else {
       if (currentPlayerNumber === totalPlayers) {
         onComplete();
       } else {
         setCurrentPlayerNumber(currentPlayerNumber + 1);
       }
-      setPlayerName("");
+      setSelectedName("");
       setShowWord(false);
       setCurrentWord("");
     }
@@ -38,18 +42,37 @@ function PlayerRegistration({
       {!showWord ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-2">Nom du joueur:</label>
-            <input
-              type="text"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              required
-              className="w-full p-2 border rounded"
-            />
+            <label className="block text-gray-700 mb-2 text-center">
+              Choisis ton nom :
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {availableNames.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setSelectedName(name)}
+                  disabled={usedNames.includes(name)}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    selectedName === name
+                      ? "border-blue-500 bg-blue-50"
+                      : usedNames.includes(name)
+                      ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            disabled={!selectedName}
+            className={`w-full py-2 px-4 rounded transition-all ${
+              selectedName
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             Voir mon mot
           </button>
